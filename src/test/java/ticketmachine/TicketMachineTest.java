@@ -93,12 +93,10 @@ class TicketMachineTest {
 
     @Test
     // S8 : refund() remet la balance à zéro
-    void refundResetsBalanceToZero() {
-        machine.insertMoney(80);
+    void refundResetsBalance() {
+        machine.insertMoney(100);
         machine.refund();
-
-        assertEquals(0, machine.getBalance(),
-                "La balance devrait être remise à zéro après remboursement");
+        assertEquals(0, machine.getBalance(), "La balance n'a pas été réinitialisée après remboursement");
     }
 
     @Test

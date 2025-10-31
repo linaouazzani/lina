@@ -1,9 +1,6 @@
 package ticketmachine;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -101,38 +98,30 @@ class TicketMachineTest {
 
     @Test
     // S9 : on ne peut pas insérer un montant négatif
-    // CORRECTION : Votre méthode insertMoney() n'a pas de vérification pour les montants négatifs
     void cannotInsertNegativeAmount() {
-        int initialBalance = machine.getBalance();
-
-        // Malheureusement, votre méthode insertMoney() accepte les montants négatifs
-        // Cette assertion va probablement échouer avec votre implémentation actuelle
-        machine.insertMoney(NEGATIVE_AMOUNT);
-
-        // Si vous corrigez votre insertMoney(), utilisez cette assertion :
-        // assertEquals(initialBalance, machine.getBalance(), 
-        //             "La balance ne devrait pas changer quand on insère un montant négatif");
-        // Pour l'instant, avec votre code actuel, on ne peut pas tester cette spécification
-        System.out.println("ATTENTION: insertMoney() n'a pas de vérification pour les montants négatifs");
+        // Vérifie qu'une exception est levée quand on insère un montant négatif
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            machine.insertMoney(NEGATIVE_AMOUNT);
+        }, "insertMoney() devrait refuser les montants négatifs");
+        
+        assertTrue(exception.getMessage().contains("positif"));
     }
 
     @Test
     // S10 : on ne peut pas créer de machine qui délivre des tickets dont le prix est négatif
     void cannotCreateMachineWithNegativePrice() {
-        // Votre constructeur lève bien une exception pour les prix négatifs
+        // Vérifie qu'une exception est levée pour les prix négatifs
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             new TicketMachine(NEGATIVE_PRICE);
         }, "Le constructeur devrait refuser un prix négatif");
 
-        // Vérification optionnelle du message d'erreur
         assertTrue(exception.getMessage().contains("positive"));
     }
 
-    // Tests supplémentaires pour couvrir d'autres cas
+    // Tests supplémentaires pour vérifier le comportement complet
     @Test
-    // Test : impression avec montant exact
     void printWithExactAmount() {
-        machine.insertMoney(PRICE); // Montant exact
+        machine.insertMoney(PRICE);
         boolean result = machine.printTicket();
 
         assertTrue(result, "Devrait imprimer avec le montant exact");
@@ -140,9 +129,8 @@ class TicketMachineTest {
     }
 
     @Test
-    // Test : impression avec montant supérieur au prix
     void printWithMoreThanPrice() {
-        machine.insertMoney(PRICE + 25); // 75
+        machine.insertMoney(PRICE + 25);
         boolean result = machine.printTicket();
 
         assertTrue(result, "Devrait imprimer avec un montant supérieur");
@@ -150,32 +138,30 @@ class TicketMachineTest {
     }
 
     @Test
-    // Test : remboursement avec balance à zéro
     void refundWithZeroBalance() {
         int refund = machine.refund();
-
         assertEquals(0, refund, "Le remboursement devrait être 0 quand la balance est 0");
+        assertEquals(0, machine.getBalance(), "La balance devrait rester à 0");
     }
 
     @Test
-    // Test : impression multiple avec balance suffisante
     void multipleTicketsWithSufficientBalance() {
-        machine.insertMoney(PRICE * 2); // 100
+        machine.insertMoney(PRICE * 3); // 150
 
         boolean firstPrint = machine.printTicket();
         boolean secondPrint = machine.printTicket();
+        boolean thirdPrint = machine.printTicket();
 
         assertTrue(firstPrint, "Première impression devrait réussir");
         assertTrue(secondPrint, "Deuxième impression devrait réussir");
-        assertEquals(0, machine.getBalance(), "Balance devrait être à zéro après deux impressions");
-        assertEquals(PRICE * 2, machine.getTotal(), "Total collecté devrait être 100");
+        assertTrue(thirdPrint, "Troisième impression devrait réussir");
+        assertEquals(0, machine.getBalance(), "Balance devrait être à zéro après trois impressions");
+        assertEquals(PRICE * 3, machine.getTotal(), "Total collecté devrait être 150");
     }
 
     @Test
-    // Test : tentative d'impression sans argent
     void printWithNoMoney() {
         boolean result = machine.printTicket();
-
         assertFalse(result, "Ne devrait pas imprimer sans argent");
         assertEquals(0, machine.getBalance(), "Balance devrait rester à 0");
         assertEquals(0, machine.getTotal(), "Total collecté devrait rester à 0");

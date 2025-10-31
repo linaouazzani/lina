@@ -11,7 +11,6 @@ package ticketmachine;
  */
 public class TicketMachine {
     // The price of a ticket from this machine.
-
     private final int price;
     // The amount of money entered by a customer so far.
     private int balance;
@@ -65,6 +64,9 @@ public class TicketMachine {
      * @throws IllegalArgumentException if amount is not positive
      */
     public void insertMoney(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Le montant doit être positif: " + amount);
+        }
         balance = balance + amount;
     }
 
@@ -74,8 +76,10 @@ public class TicketMachine {
      * @return the balance
      */
     public int refund() {
-        System.out.println("Je vous rends : " + balance + " centimes");
-        return balance;
+        int amountToRefund = balance;
+        balance = 0; // CORRECTION IMPORTANTE : remettre la balance à zéro
+        System.out.println("Je vous rends : " + amountToRefund + " centimes");
+        return amountToRefund;
     }
 
     /**
